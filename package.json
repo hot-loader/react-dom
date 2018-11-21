@@ -1,0 +1,22 @@
+{
+  "name": "@hot-loader/react-dom",
+  "version": "16.7.0-alpha.2",
+  "description": "The Hot version of React-DOM",
+  "main": "index.js",
+  "scripts": {
+    "build": "node build.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hot-loader/react-dom.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/hot-loader/react-dom/issues"
+  },
+  "homepage": "https://github.com/hot-loader/react-dom#readme",
+  "devDependencies": {
+    "react-dom": "^16.7.0-alpha.2"
+  }
+}
