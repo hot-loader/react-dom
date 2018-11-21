@@ -12,5 +12,6 @@ if (!patched) {
   throw new Error('could not patch react-dom')
 }
 
-writeFileSync('index.js', patched);
+writeFileSync('index.dev.js', patched);
+writeFileSync('index.prod.js', readFileSync('./node_modules/react-dom/cjs/react-dom.production.min.js').toString());
 
