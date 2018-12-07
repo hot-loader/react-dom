@@ -1,5 +1,5 @@
 if (process.env.NODE_ENV === 'production') {
-  module.exports = require('./index.prod.js');
+  module.exports = require('./dist/react-dom.hot.production.js');
 } else {
-  module.exports = require('./index.dev.js');
+  module.exports = require('./dist/react-dom.hot.development.js');
 }

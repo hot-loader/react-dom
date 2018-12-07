@@ -4,6 +4,7 @@ const self = require('./package');
 const patch = require('./patch');
 
 self.version = pkg.version;
+self.dependencies = pkg.dependencies;
 
 writeFileSync('package.json', JSON.stringify(self, null, 2));
 
@@ -12,6 +13,6 @@ if (!patched) {
   throw new Error('could not patch react-dom')
 }
 
-writeFileSync('index.dev.js', patched);
-writeFileSync('index.prod.js', readFileSync('./node_modules/react-dom/cjs/react-dom.production.min.js').toString());
+writeFileSync('./dist/react-dom.hot.development.js', patched);
+writeFileSync('./dist/react-dom.hot.production.js', readFileSync('./node_modules/react-dom/cjs/react-dom.production.min.js').toString());
 
