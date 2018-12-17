@@ -72,6 +72,8 @@ const injectionEnd = {
   '16.4-compact': defaultEndCompact,
 };
 
+const sign = '/** this is hot-loader/react-dom */';
+
 function additionalTransform(source) {
   for (const key in additional) {
     source = source.split(additional[key][0]).join(additional[key][1])
@@ -89,11 +91,12 @@ function transform(source) {
       source.indexOf(injectionStart[key][0]) > 0 &&
       source.indexOf(injectionEnd[key][0]) > 0
     ) {
-      return additionalTransform(
+      const result = additionalTransform(
         source
           .replace(injectionStart[key][0], injectionStart[key][1])
           .replace(injectionEnd[key][0], injectionEnd[key][1])
-      ) + '/** react is now 🔥 */'
+      );
+      return sign + result + sign;
     }
   }
   return false;

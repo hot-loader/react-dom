@@ -1,11 +1,9 @@
 {
-  "private": true,
   "name": "@hot-loader/react-dom",
-  "version": "16.7.0-alpha.2.2",
+  "version": "16.7.0-alpha.2.3",
   "description": "The Hot version of React-DOM",
-  "main": "index.js",
   "scripts": {
-    "build": "rm -Rf target && mkdir target && cd  patch && node build.js"
+    "build": "node build.js"
   },
   "repository": {
     "type": "git",
@@ -24,11 +22,5 @@
   "homepage": "https://github.com/hot-loader/react-dom#readme",
   "devDependencies": {
     "react-dom": "^16.7.0-alpha.2"
-  },
-  "dependencies": {
-    "loose-envify": "^1.1.0",
-    "object-assign": "^4.1.1",
-    "prop-types": "^15.6.2",
-    "scheduler": "^0.12.0-alpha.2"
   }
 }

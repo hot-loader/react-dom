@@ -14,7 +14,7 @@ There are just 4 lines changed, see `patch.js` for details
 ```text
 yarn add @hot-loader/react-dom@YOUR_REACT_VERSION
 ```
-> Right now only 16.7.0-alpha.2.1 version is available
+> Right now only 16.7.0-alpha.2 version is available
 
 ## Rewire
 To use this version of React-dom you have to rewire your application
