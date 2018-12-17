@@ -5,7 +5,10 @@
   "description": "The Hot version of React-DOM",
   "main": "index.js",
   "scripts": {
-    "build": "rm -Rf target && mkdir target && cd  patch && node build.js"
+    "clean": "rm -Rf target",
+    "prepare": "mkdir target && cp ./README.md ./source/README.md",
+    "patch": "cd patch && node build.js",
+    "build": "run-s clean prepare patch"
   },
   "repository": {
     "type": "git",
@@ -23,6 +26,7 @@
   },
   "homepage": "https://github.com/hot-loader/react-dom#readme",
   "devDependencies": {
+    "npm-run-all": "^4.1.5",
     "react-dom": "^16.7.0-alpha.2"
   },
   "dependencies": {

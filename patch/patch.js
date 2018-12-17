@@ -72,7 +72,7 @@ const injectionEnd = {
   '16.4-compact': defaultEndCompact,
 };
 
-const sign = '/** this is hot-loader/react-dom */';
+const sign = '/**  🔥 this is hot-loader/react-dom 🔥 */';
 
 function additionalTransform(source) {
   for (const key in additional) {
@@ -96,7 +96,7 @@ function transform(source) {
           .replace(injectionStart[key][0], injectionStart[key][1])
           .replace(injectionEnd[key][0], injectionEnd[key][1])
       );
-      return sign + result + sign;
+      return `${sign}\n${result}\n${sign}`;
     }
   }
   return false;
