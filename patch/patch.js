@@ -1,34 +1,34 @@
 const injectionStart = {
   '16.6': [
     'if (child.tag === Fragment ? element.type === REACT_FRAGMENT_TYPE : child.elementType === element.type)',
-    'if (child.tag === Fragment ? element.type === REACT_FRAGMENT_TYPE : hotCompareElements(child.elementType, element.type, updateChild(child)))'
+    'if (child.tag === Fragment ? element.type === REACT_FRAGMENT_TYPE : hotCompareElements(child.elementType, element.type, updateChild(child), child.type))'
   ],
   '16.6-compact': [
     'if(child.tag===Fragment?element.type===REACT_FRAGMENT_TYPE:child.elementType===element.type)',
-    'if(child.tag===Fragment?element.type===REACT_FRAGMENT_TYPE:hotCompareElements(child.elementType,element.type, updateChild(child)))'
+    'if(child.tag===Fragment?element.type===REACT_FRAGMENT_TYPE:hotCompareElements(child.elementType,element.type, updateChild(child), child.type))'
   ],
   '16.4': [
     'if (child.tag === Fragment ? element.type === REACT_FRAGMENT_TYPE : child.type === element.type) {',
-    'if (child.tag === Fragment ? element.type === REACT_FRAGMENT_TYPE : hotCompareElements(child.type, element.type, updateChild(child))) {'
+    'if (child.tag === Fragment ? element.type === REACT_FRAGMENT_TYPE : hotCompareElements(child.type, element.type, updateChild(child), child.type)) {'
   ],
   '16.4-compact': [
     'if(child.tag===Fragment?element.type===REACT_FRAGMENT_TYPE:child.type===element.type)',
-    'if(child.tag===Fragment?element.type===REACT_FRAGMENT_TYPE:hotCompareElements(child.type,element.type, updateChild(child)))'
+    'if(child.tag===Fragment?element.type===REACT_FRAGMENT_TYPE:hotCompareElements(child.type,element.type, updateChild(child), child.type))'
   ],
 };
 
 const additional = {
   '16.6-update': [
     'if (current$$1 !== null && current$$1.elementType === element.type) {',
-    'if (current$$1 !== null && hotCompareElements(current$$1.elementType, element.type, updateChild(current$$1))) {'
+    'if (current$$1 !== null && hotCompareElements(current$$1.elementType, element.type, updateChild(current$$1),current$$1.type)) {'
   ],
   '16.6-update-compact': [
     'if(current$$1!==null&&current$$1.elementType===element.type)',
-    'if(current$$1!==null&&hotCompareElements(current$$1.elementType,element.type,updateChild(current$$1)))'
+    'if(current$$1!==null&&hotCompareElements(current$$1.elementType,element.type,updateChild(current$$1),current$$1.type))'
   ],
   '16.4-update': [
     'if (current !== null && current.type === element.type) {',
-    'if (current !== null && hotCompareElements(current.type, element.type, updateChild(current))) {'
+    'if (current !== null && hotCompareElements(current.type, element.type, updateChild(current),current.type)) {'
   ],
   '16.4-update-compact': [
     'if (current!== null&&current.type===element.type)',
@@ -72,7 +72,7 @@ const injectionEnd = {
   '16.4-compact': defaultEndCompact,
 };
 
-const sign = '/**  🔥 this is hot-loader/react-dom 🔥 */';
+const sign = '/* 🔥 this is hot-loader/react-dom 🔥 */';
 
 function additionalTransform(source) {
   for (const key in additional) {
@@ -84,7 +84,7 @@ function additionalTransform(source) {
 function transform(source) {
   if (source.indexOf('reconcileSingleElement') < 0) {
     // early reject
-    return false;
+    return source;
   }
   for (const key in injectionStart) {
     if (
@@ -99,7 +99,7 @@ function transform(source) {
       return `${sign}\n${result}\n${sign}`;
     }
   }
-  return false;
+  return source;
 }
 
 module.exports = transform;

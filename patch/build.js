@@ -8,7 +8,7 @@ let patchedFiles = [];
 const copyFile = (source, dest) => {
   const data = readFileSync(source).toString();
   const patchedData = patch(data);
-  if (patchedData) {
+  if (patchedData !== data) {
     patchedFiles.push(dest);
   }
   writeFileSync(dest, patchedData || data)
@@ -39,6 +39,6 @@ writeFileSync('../target/package.json', JSON.stringify(Object.assign(pkg, self),
 console.log(patchedFiles);
 
 if (patchedFiles.length !== 2) {
-  throw new Error('expected to patch 1 file');
+  throw new Error('expected to patch 2 file');
 }
 

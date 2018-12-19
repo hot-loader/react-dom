@@ -48,7 +48,7 @@ See https://github.com/parcel-bundler/parcel/pull/850
 For any other build system, which may not support aliasing - use yarn name resolution.
 See https://twitter.com/sebmck/status/873958247304232961?lang=en for details.
 ```text
-yarn add @hot-loader/react-dom@npm:react-dom
+yarn add react-dom@npm:@hot-loader/react-dom
 ```
 
 # Using webpack-loader

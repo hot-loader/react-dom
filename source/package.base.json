@@ -1,6 +1,6 @@
 {
   "name": "@hot-loader/react-dom",
-  "version": "16.7.0-alpha.2.3",
+  "version": "16.7.0-alpha.2.4",
   "description": "The Hot version of React-DOM",
   "scripts": {
     "build": "node build.js"
