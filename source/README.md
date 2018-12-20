@@ -6,7 +6,7 @@ This is normal `react-dom` with some patches applied to be more
 Use it to obtain more 🔥 dev experience.
 
 # Differences from react
-There are just 4 lines changed, see `patch.js` for details
+There are just 4 changed lines, see `patch.js` for details
 
 # Using this module
 

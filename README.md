@@ -6,7 +6,7 @@ This is normal `react-dom` with some patches applied to be more
 Use it to obtain more 🔥 dev experience.
 
 # Differences from react
-There are just 4 lines changed, see `patch.js` for details
+There are just 4 changed lines, see `patch.js` for details
 
 # Using this module
 
@@ -14,7 +14,7 @@ There are just 4 lines changed, see `patch.js` for details
 ```text
 yarn add @hot-loader/react-dom@YOUR_REACT_VERSION
 ```
-> Right now only 16.7.0-alpha.2 version is available
+> Right now only 16.7.0+ versions are available
 
 ## Rewire
 To use this version of React-dom you have to rewire your application
