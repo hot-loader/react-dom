@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "clean": "rm -Rf target",
-    "prepare": "mkdir target && cp ./README.md ./source/README.md",
+    "prepare": "cp ./README.md ./source/README.md",
     "patch": "cd patch && node build.js",
     "build": "run-s clean prepare patch"
   },
@@ -27,7 +27,7 @@
   "homepage": "https://github.com/hot-loader/react-dom#readme",
   "devDependencies": {
     "npm-run-all": "^4.1.5",
-    "react-dom": "^16.7.0"
+    "react-dom": "^16.8.1"
   },
   "dependencies": {
     "loose-envify": "^1.1.0",

@@ -36,7 +36,10 @@ const copy = (source, target) => {
 
     const stat = statSync(sourceFile);
     if (stat.isDirectory()) {
-      mkdirSync(`${target}/${i}`);
+      try {
+        mkdirSync(`${target}/${i}`);
+      } catch (e) {
+      }
       copy(sourceFile, targetFile)
     } else {
       copyFile(sourceFile, targetFile);
@@ -44,6 +47,7 @@ const copy = (source, target) => {
   }
 }
 
+mkdirSync('../target');
 copy('../node_modules/react-dom/', '../target');
 copy('../source', '../node_modules/react-dom/', '../target');
 
