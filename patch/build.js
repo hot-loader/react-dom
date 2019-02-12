@@ -1,7 +1,7 @@
 const {writeFileSync, readFileSync, readdirSync, statSync, mkdirSync} = require('fs');
 const pkg = require('react-dom/package');
 const self = require('../source/package.base');
-const patch = require('./patch');
+const {default: {patch}} = require('react-hot-loader/webpack');
 
 let patchedFiles = [];
 
