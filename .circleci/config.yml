@@ -1,0 +1,56 @@
+# this file still do nothing
+version: 2
+
+aliases:
+  - &docker
+    - image: circleci/node:dubnium
+
+  - &environment
+    TZ: /usr/share/zoneinfo/America/Los_Angeles
+
+  - &restore_yarn_cache
+    restore_cache:
+      name: Restore node_modules cache
+      keys:
+        - v1-node-{{ arch }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
+        - v1-node-{{ arch }}-{{ .Branch }}-
+        - v1-node-{{ arch }}-
+  - &run_yarn
+    run:
+      name: Install Packages
+      command: yarn --frozen-lockfile
+
+orbs:
+  node: circleci/node@1.0.1
+
+jobs:
+  setup:
+    docker: *docker
+    environment: *environment
+
+    steps:
+      - checkout
+      - run:
+          name: Nodejs Version
+          command: node --version
+      - *restore_yarn_cache
+      - *run_yarn
+      - save_cache:
+          name: Save node_modules cache
+          key: v1-node-{{ arch }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/.cache/yarn
+
+# workflows:
+#   version: 2
+#   nightly:
+#     triggers:
+#       - schedule:
+#           # every 10 minutes
+#           cron: "*/10 * * * *"
+#           filters:
+#             branches:
+#               only:
+#                 - master
+#     jobs:
+#       - should-publish

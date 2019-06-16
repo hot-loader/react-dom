@@ -1,0 +1,61 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Auto publish utils doesReactDOMHasNewerVersionThanUs - no! RC is ready: Correct params passed to execFile 1`] = `
+[MockFunction] {
+  "calls": Array [
+    Array [
+      "yarn",
+      Array [
+        "info",
+        "@hot-loader/react-dom",
+        "--json",
+      ],
+      Object {
+        "cwd": undefined,
+        "timeout": 2000,
+      },
+      [Function],
+    ],
+    Array [
+      "yarn",
+      Array [
+        "info",
+        "@hot-loader/react-dom",
+        "--json",
+      ],
+      Object {
+        "cwd": undefined,
+        "timeout": 2000,
+      },
+      [Function],
+    ],
+    Array [
+      "yarn",
+      Array [
+        "info",
+        "react-dom",
+        "--json",
+      ],
+      Object {
+        "cwd": undefined,
+        "timeout": 2000,
+      },
+      [Function],
+    ],
+  ],
+  "results": Array [
+    Object {
+      "type": "return",
+      "value": undefined,
+    },
+    Object {
+      "type": "return",
+      "value": undefined,
+    },
+    Object {
+      "type": "return",
+      "value": undefined,
+    },
+  ],
+}
+`;
