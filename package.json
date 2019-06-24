@@ -27,13 +27,13 @@
   "homepage": "https://github.com/hot-loader/react-dom#readme",
   "devDependencies": {
     "npm-run-all": "^4.1.5",
-    "react-dom": "^16.8.6"
+    "react-dom": "^16.9.0-alpha.0"
   },
   "dependencies": {
     "loose-envify": "^1.1.0",
     "object-assign": "^4.1.1",
     "prop-types": "^15.6.2",
-    "react-hot-loader": "^4.7.0",
+    "react-hot-loader": "^4.11.1",
     "scheduler": "^0.12.0-alpha.2"
   }
 }
