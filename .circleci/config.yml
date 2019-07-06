@@ -1,56 +1,63 @@
-# this file still do nothing
 version: 2
-
-aliases:
-  - &docker
-    - image: circleci/node:dubnium
-
-  - &environment
-    TZ: /usr/share/zoneinfo/America/Los_Angeles
-
-  - &restore_yarn_cache
-    restore_cache:
-      name: Restore node_modules cache
-      keys:
-        - v1-node-{{ arch }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
-        - v1-node-{{ arch }}-{{ .Branch }}-
-        - v1-node-{{ arch }}-
-  - &run_yarn
-    run:
-      name: Install Packages
-      command: yarn --frozen-lockfile
-
-orbs:
-  node: circleci/node@1.0.1
-
 jobs:
-  setup:
-    docker: *docker
-    environment: *environment
-
+  sanity_check:
+    working_directory: ~/project
+    docker:
+      - image: circleci/node:10
     steps:
       - checkout
+      - restore_cache:
+          name: Restore Yarn Package Cache
+          keys:
+            - yarn-packages-{{ checksum "yarn.lock" }}
       - run:
-          name: Nodejs Version
-          command: node --version
-      - *restore_yarn_cache
-      - *run_yarn
+          name: Install Dependencies
+          command: yarn install --frozen-lockfile
       - save_cache:
-          name: Save node_modules cache
-          key: v1-node-{{ arch }}-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          name: Save Yarn Package Cache
+          key: yarn-packages-{{ checksum "yarn.lock" }}
           paths:
             - ~/.cache/yarn
+      - run:
+          name: Run Tests
+          command: yarn test
 
-# workflows:
-#   version: 2
-#   nightly:
-#     triggers:
-#       - schedule:
-#           # every 10 minutes
-#           cron: "*/10 * * * *"
-#           filters:
-#             branches:
-#               only:
-#                 - master
-#     jobs:
-#       - should-publish
+  publish_if_needed:
+    working_directory: ~/project
+    docker:
+      - image: circleci/node:10
+    steps:
+      - checkout
+      - restore_cache:
+          name: Restore Yarn Package Cache
+          keys:
+            - yarn-packages-{{ checksum "yarn.lock" }}
+      - run:
+          name: Install Dependencies
+          command: yarn install --frozen-lockfile
+      - save_cache:
+          name: Save Yarn Package Cache
+          key: yarn-packages-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/.cache/yarn
+      - run:
+          name: Run Tests
+          command: node auto-publish/index.js
+
+workflows:
+  version: 2
+
+  for_every_push:
+    jobs:
+      - sanity_check
+
+  publish_if_needed:
+    triggers:
+      - schedule:
+          cron: "0,30 * * * *"
+          filters:
+            branches:
+              only:
+                - publishing-automation
+    jobs:
+      - publish_if_needed

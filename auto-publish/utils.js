@@ -2,21 +2,22 @@ const child_process = require("child_process");
 const semver = require("semver");
 const path = require("path");
 const fs = require("fs-extra");
-const OUR_RC_DIST_TAG = "rc";
-const basePackageJSON = require("../source/package.base.json");
-const {
-  default: { patch }
-  // @ts-ignore
-} = require("react-hot-loader/webpack");
 
 /**
  * Install the given react-dom version, patch it, and return the path to the patched package.
  *
  * @param {string} stagingArea
  * @param {string} version
+ * @param {string} rhlVersion
+ * @param {string} registryOrg
  */
-async function getAndPatchGivenReactDOMVersion(stagingArea, version) {
-  const wd = path.resolve(stagingArea, version);
+async function getAndPatchGivenReactDOMVersionWithGivenRHLVersion(
+  stagingArea,
+  version,
+  rhlVersion,
+  registryOrg
+) {
+  const wd = path.resolve(stagingArea, `${version}-${rhlVersion}`);
   await fs.emptyDir(wd);
   const originalDir = path.resolve(wd, "source");
   const targetDir = path.resolve(wd, "target");
@@ -26,30 +27,24 @@ async function getAndPatchGivenReactDOMVersion(stagingArea, version) {
 
   // create new local package.json for isolation
   await execFile("yarn", ["init", "-y"], originalDir);
+
   // install react so avoid yarn peer warnings
   await execFile(
     "yarn",
     [
       "add",
-      "react",
+      `react`,
+      `react-dom@${version}`,
+      `react-hot-loader@${rhlVersion}`,
       "--no-lockfile"
     ],
-    originalDir
-  );
-  await execFile(
-    "yarn",
-    [
-      "add",
-      "react-dom",
-      "--no-lockfile"
-      //  "--modules-folder", "lalal"
-    ],
-    originalDir
+    originalDir,
+    5000
   );
 
-  const reactDOMPath = path.resolve(originalDir, "node_modules", "react-dom");
+  const nodeModulesPath = path.resolve(originalDir, "node_modules");
 
-  const patchedFiles = await patchWork(reactDOMPath, targetDir);
+  const patchedFiles = await patchWork(nodeModulesPath, targetDir, registryOrg);
 
   if (patchedFiles.length < 2) {
     throw new Error("expected to patch at least 2 files");
@@ -60,24 +55,71 @@ async function getAndPatchGivenReactDOMVersion(stagingArea, version) {
 }
 
 /**
- * Checks on npm registry if the latest published version of react-dom is newer than our latest published package,
- * In the latest or rc dist tags.
+ * The version is actually the combination of react-dom version concatenated with react-hot-loader version.
+ * Delimited by -
+ * @param {string} distTag
+ * @param {string} registryOrg
  */
-async function doesReactDOMHasNewerVersionThanUs() {
-  const [ourRCVersion, ourLatestVersion, reactDOMVersion] = await Promise.all([
-    getVersionInDistTagOfPackage("@hot-loader/react-dom", OUR_RC_DIST_TAG),
-    getVersionInDistTagOfPackage("@hot-loader/react-dom", "latest"),
-    getVersionInDistTagOfPackage("react-dom", "latest")
+async function getCurrentVersionState(distTag, registryOrg) {
+  const versionString = await getVersionInDistTagOfPackage(
+    "@hot-loader/react-dom",
+    distTag
+  );
+  const [reactDOMVersion, reactHotLoaderVersion = "0.0.1"] = (
+    versionString || "0.0.1"
+  ).split("-");
+
+  return {
+    reactDOMVersion,
+    reactHotLoaderVersion
+  };
+}
+
+/**
+ * Checks on npm registry if the latest published version of react-dom or react-hot-loader is newer than our latest published package,
+ * In the given dist tag, and his rc
+ *
+ * If an update is needed, return the versions, if not return false+
+ * @param {string} reactDOMDistTag
+ * @param {string} reactHotLoaderDistTag
+ * @param {string} ourRegistryOrg
+ * @param {string} rcTagSuffix
+ */
+async function doesReactDOMOrHotLoaderHasNewerVersionThanUs(
+  reactDOMDistTag,
+  reactHotLoaderDistTag,
+  ourRegistryOrg,
+  rcTagSuffix
+) {
+  const rcTagForThatDistTag = reactDOMDistTag + rcTagSuffix;
+  const [
+    ourRC,
+    ourDistTagVersion,
+    reactDOMVersion,
+    reactHotLoaderVersion
+  ] = await Promise.all([
+    getCurrentVersionState(rcTagForThatDistTag, ourRegistryOrg),
+    getCurrentVersionState(reactDOMDistTag, ourRegistryOrg),
+    getVersionInDistTagOfPackage("react-dom", reactDOMDistTag),
+    getVersionInDistTagOfPackage("react-hot-loader", reactHotLoaderDistTag)
   ]);
 
-  // seems like react-dom have new version!
-  if (semver.gt(reactDOMVersion, ourLatestVersion)) {
-    if (semver.gte(ourRCVersion, reactDOMVersion)) {
-      // Ah no, we have a version waiting in our RC tag
-      return false;
-    }
-
-    return reactDOMVersion;
+  if (
+    (semver.gt(reactDOMVersion || "0.0.1", ourDistTagVersion.reactDOMVersion) &&
+      !semver.gte(ourRC.reactDOMVersion, reactDOMVersion || "0.0.1")) ||
+    (semver.gt(
+      reactHotLoaderVersion || "0.0.1",
+      ourDistTagVersion.reactHotLoaderVersion
+    ) &&
+      !semver.gte(
+        ourRC.reactHotLoaderVersion,
+        reactHotLoaderVersion || "0.0.1"
+      ))
+  ) {
+    return {
+      reactDOMVersion,
+      reactHotLoaderVersion
+    };
   }
 
   return false;
@@ -85,6 +127,7 @@ async function doesReactDOMHasNewerVersionThanUs() {
 
 /**
  * (In npm) returns the version that the given dist tag points to, on the given package
+ * return null if there is no such dist tag
  * @param {string} packageName
  * @param {string} distTag
  */
@@ -96,10 +139,12 @@ async function getVersionInDistTagOfPackage(packageName, distTag) {
   const json = JSON.parse(
     await execFile("yarn", ["info", packageName, "--json"])
   );
+
   const distTagPointsTo = json.data["dist-tags"][distTag];
 
   if (!distTagPointsTo) {
-    throw new Error("Given dist tag not found");
+    // throw new Error("Given dist tag not found");
+    return null;
   }
 
   return distTagPointsTo;
@@ -113,14 +158,15 @@ async function getVersionInDistTagOfPackage(packageName, distTag) {
  * @param {string} [cwd]
  * @returns {Promise<string>}
  */
-async function execFile(file, args, cwd) {
+async function execFile(file, args, cwd, timeout = 2000) {
   return new Promise((res, rej) => {
     child_process.execFile(
       file,
       args,
-      { timeout: 2000, cwd },
+      { timeout, cwd },
       (error, stdout, stderr) => {
         if (error) {
+          // console.error({error, stdout, stderr});
           rej(error);
         } else {
           res(stdout);
@@ -135,41 +181,69 @@ async function execFile(file, args, cwd) {
  * And put the results to the given targetDir
  * returns the number of file changed
  *
- * @param {string} originalDirOrReactDOMPackage
+ * @param {string} originalDirOfPackage
  * @param {string} targetDir
+ * @param {string} registryOrg
  */
-async function patchWork(originalDirOrReactDOMPackage, targetDir) {
-  const pkg = require(path.resolve(originalDirOrReactDOMPackage, "package.json"));
+async function patchWork(originalDirOfPackage, targetDir, registryOrg) {
+  const originalDirOfReactDOMPackage = path.resolve(
+    originalDirOfPackage,
+    "react-dom"
+  );
+  const originalReactDOMPackageJSON = require(path.resolve(
+    originalDirOfReactDOMPackage,
+    "package.json"
+  ));
+
+  const reactHotLoaderWebpackCode = require(path.resolve(
+    originalDirOfPackage,
+    "react-hot-loader/webpack"
+  ));
+  const reactHotLoaderPackageJSON = require(path.resolve(
+    originalDirOfPackage,
+    "react-hot-loader",
+    "package.json"
+  ));
+  const basePackageJSON = require("../source/package.base.json");
 
   await fs.mkdirp(targetDir);
   const patchedFiles = await copyAndPatchDirectory(
-    originalDirOrReactDOMPackage,
-    targetDir
+    originalDirOfReactDOMPackage,
+    targetDir,
+    reactHotLoaderWebpackCode.default.patch
   );
 
   // was doing nothing (?)
   // await copyAndPatchDirectory("../source", "../node_modules/react-dom/", "../target");
 
+  originalReactDOMPackageJSON.version = `${originalReactDOMPackageJSON.version}-${reactHotLoaderPackageJSON.version}`;
+  basePackageJSON.name = basePackageJSON.name.replace(
+    "REGISTRY_ORG_PLACEHOLDER",
+    registryOrg
+  );
+
   await fs.writeFile(
     path.resolve(targetDir, "package.json"),
     JSON.stringify(
-      filterPackage(Object.assign(pkg, basePackageJSON)),
+      filterPackage(
+        Object.assign(originalReactDOMPackageJSON, basePackageJSON)
+      ),
       null,
       " "
     )
   );
 
   return patchedFiles;
-
 }
 
 /**
  * @param {string} source
  * @param {string} dest
+ * @param {(data: string) => Promise<string>} patchFunction
  */
-async function copyAndMaybePatchFile(source, dest) {
+async function copyAndMaybePatchFile(source, dest, patchFunction) {
   const data = (await fs.readFile(source)).toString();
-  const patchedData = await patch(data);
+  const patchedData = await patchFunction(data);
   await fs.writeFile(dest, patchedData || data);
 
   return patchedData !== data;
@@ -178,8 +252,9 @@ async function copyAndMaybePatchFile(source, dest) {
 /**
  * @param {string} source
  * @param {string} target
+ * @param {(data: string) => Promise<string>} patchFunction
  */
-async function copyAndPatchDirectory(source, target) {
+async function copyAndPatchDirectory(source, target, patchFunction) {
   /** @type {string[]} */
   const patchedFiles = [];
 
@@ -195,9 +270,11 @@ async function copyAndPatchDirectory(source, target) {
         await fs.mkdir(path.resolve(target, i));
       } catch (e) {}
 
-      patchedFiles.push(...await copyAndPatchDirectory(sourceFile, targetFile))
+      patchedFiles.push(
+        ...(await copyAndPatchDirectory(sourceFile, targetFile, patchFunction))
+      );
     } else {
-      if (await copyAndMaybePatchFile(sourceFile, targetFile)) {
+      if (await copyAndMaybePatchFile(sourceFile, targetFile, patchFunction)) {
         patchedFiles.push(targetFile);
       }
     }
@@ -222,10 +299,9 @@ function filterPackage(pkg) {
   );
 }
 
-
 module.exports = {
-  getAndPatchGivenReactDOMVersion,
-  doesReactDOMHasNewerVersionThanUs,
+  getAndPatchGivenReactDOMVersionWithGivenRHLVersion,
   getVersionInDistTagOfPackage,
-  execFile
+  execFile,
+  doesReactDOMOrHotLoaderHasNewerVersionThanUs
 };
