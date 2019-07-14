@@ -1,0 +1,10 @@
+{
+    "typescript.tsdk": "node_modules/typescript/lib",
+    "debug.node.autoAttach": "on",
+    "jest.debugMode": false,
+    "jest.autoEnable": false,
+    "jest.enableCodeLens": true,
+    "jest.enableInlineErrorMessages": true,
+    "jest.runAllTestsFirst": true,
+    "jest.debugCodeLens.showWhenTestStateIn": ["fail", "unknown", "pass", "skip"],
+}

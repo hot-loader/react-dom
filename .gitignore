@@ -1,3 +1,5 @@
 node_modules
 target
 yarn-error.log
+auto-publish/staging-area
+auto-publish/staging-area-for-test

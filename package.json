@@ -7,8 +7,10 @@
   "scripts": {
     "clean": "rm -Rf target",
     "prepare": "cp ./README.md ./source/README.md",
-    "patch": "cd patch && node build.js",
-    "build": "run-s clean prepare patch"
+    "patch": "node auto-publish/build.js",
+    "build": "run-s clean prepare patch",
+    "yarn-deduplicate": "yarn-deduplicate yarn.lock -s fewer",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -26,14 +28,21 @@
   },
   "homepage": "https://github.com/hot-loader/react-dom#readme",
   "devDependencies": {
+    "@types/fs-extra": "^8.0.0",
+    "@types/jest": "^24.0.15",
+    "@types/node": "^10",
+    "@types/semver": "^6.0.1",
+    "jest": "^24.8.0",
     "npm-run-all": "^4.1.5",
-    "react-dom": "^16.9.0-alpha.0"
+    "prettier": "^1.18.2",
+    "typescript": "^3.5.2",
+    "yarn-deduplicate": "^1.1.1"
   },
   "dependencies": {
+    "fs-extra": "^8.1.0",
     "loose-envify": "^1.1.0",
     "object-assign": "^4.1.1",
     "prop-types": "^15.6.2",
-    "react-hot-loader": "^4.11.1",
-    "scheduler": "^0.12.0-alpha.2"
+    "semver": "^6.2.0"
   }
 }
