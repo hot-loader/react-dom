@@ -2,6 +2,7 @@ const child_process = require("child_process");
 const semver = require("semver");
 const path = require("path");
 const fs = require("fs-extra");
+const debug = require("debug")("react-hot-dom-patcher");
 
 /**
  * Install the given react-dom version, patch it, and return the path to the patched package.
@@ -255,6 +256,7 @@ async function copyAndMaybePatchFile(source, dest, patchFunction) {
  * @param {(data: string) => Promise<string>} patchFunction
  */
 async function copyAndPatchDirectory(source, target, patchFunction) {
+  debug("Iterating directory %o", source.replace(/^.+\/react-dom\//g, ""));
   /** @type {string[]} */
   const patchedFiles = [];
 
@@ -274,7 +276,9 @@ async function copyAndPatchDirectory(source, target, patchFunction) {
         ...(await copyAndPatchDirectory(sourceFile, targetFile, patchFunction))
       );
     } else {
-      if (await copyAndMaybePatchFile(sourceFile, targetFile, patchFunction)) {
+      const didIPatcheTheFile = await copyAndMaybePatchFile(sourceFile, targetFile, patchFunction);
+      debug("Did i patch the file %s? %s", sourceFile.replace(/^.+\/react-dom\//g, ""), didIPatcheTheFile);
+      if (didIPatcheTheFile) {
         patchedFiles.push(targetFile);
       }
     }

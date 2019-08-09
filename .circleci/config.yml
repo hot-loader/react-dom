@@ -58,6 +58,7 @@ workflows:
           filters:
             branches:
               only:
+                - master
                 - publishing-automation
     jobs:
       - publish_if_needed
