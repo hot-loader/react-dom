@@ -44,6 +44,13 @@ async function getAndPatchGivenReactDOMVersionWithGivenRHLVersion(
 
   const nodeModulesPath = path.resolve(originalDir, "node_modules");
 
+  const reactDomVersion = require(path.join(nodeModulesPath,'react-dom','package.json')).version;
+  const reactLoaderVersion = require(path.join(nodeModulesPath,'react-hot-loader','package.json')).version;
+
+  console.log('*******');
+  console.log(`combining React-DOM@${reactDomVersion} and React-Hot-Loader@${reactLoaderVersion}`);
+  console.log('*******');
+
   const patchedFiles = await patchWork(nodeModulesPath, targetDir, registryOrg);
 
   if (patchedFiles.length < 2) {
@@ -140,6 +147,8 @@ async function getVersionInDistTagOfPackage(packageName, distTag) {
     await execFile("yarn", ["info", packageName, "--json"])
   );
 
+  console.log(json.data["dist-tags"]);
+
   const distTagPointsTo = json.data["dist-tags"][distTag];
 
   if (!distTagPointsTo) {
@@ -210,7 +219,13 @@ async function patchWork(originalDirOfPackage, targetDir, registryOrg) {
   const patchedFiles = await copyAndPatchDirectory(
     originalDirOfReactDOMPackage,
     targetDir,
-    reactHotLoaderWebpackCode.default.patch
+    (code) => {
+      const newCode = reactHotLoaderWebpackCode.default.patch(code);
+      if(newCode) {
+        return newCode.split('hot-loader/react-dom 4.8+').join(`hot-loader/react-dom ${reactHotLoaderPackageJSON.version}`);
+      }
+      return newCode;
+    }
   );
 
   // was doing nothing (?)
