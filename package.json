@@ -1,8 +1,8 @@
 {
   "private": true,
-  "name": "@hot-loader/react-dom",
+  "name": "@hot-loader/react-dom-publishing-infra",
   "version": "0.0.0",
-  "description": "The Hot version of React-DOM",
+  "description": "Patching & publishing react-dom for hot loader support infra",
   "main": "index.js",
   "scripts": {
     "clean": "rm -Rf target",
@@ -29,13 +29,13 @@
   "homepage": "https://github.com/hot-loader/react-dom#readme",
   "devDependencies": {
     "@types/fs-extra": "^8.0.0",
-    "@types/jest": "^24.0.15",
+    "@types/jest": "^24.0.18",
     "@types/node": "^10",
-    "@types/semver": "^6.0.1",
-    "jest": "^24.8.0",
+    "@types/semver": "^6.0.2",
+    "jest": "^24.9.0",
     "npm-run-all": "^4.1.5",
     "prettier": "^1.18.2",
-    "typescript": "^3.5.2",
+    "typescript": "^3.6.3",
     "yarn-deduplicate": "^1.1.1"
   },
   "dependencies": {
@@ -43,6 +43,6 @@
     "loose-envify": "^1.1.0",
     "object-assign": "^4.1.1",
     "prop-types": "^15.6.2",
-    "semver": "^6.2.0"
+    "semver": "^6.3.0"
   }
 }
