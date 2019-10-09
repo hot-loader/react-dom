@@ -51,14 +51,14 @@ workflows:
     jobs:
       - sanity_check
 
-  publish_if_needed:
-    triggers:
-      - schedule:
-          cron: "0,30 * * * *"
-          filters:
-            branches:
-              only:
-                - publishing-automation
-                - master
-    jobs:
-      - publish_if_needed
+  # publish_if_needed:
+  #   triggers:
+  #     - schedule:
+  #         cron: "0,30 * * * *"
+  #         filters:
+  #           branches:
+  #             only:
+  #               - publishing-automation
+  #               - master
+  #   jobs:
+  #     - publish_if_needed
