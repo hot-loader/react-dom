@@ -15,7 +15,7 @@ const {
   const answer = await doesReactDOMOrHotLoaderHasNewerVersionThanUs(
     "latest",
     "latest",
-    "test-org-bnaya-2",
+    "hot-loader",
     "_rc"
   );
 
@@ -32,10 +32,12 @@ const {
       path.resolve(__dirname, "staging-area"),
       answer.reactDOMVersion,
       answer.reactHotLoaderVersion,
-      "test-org-bnaya-2"
+      "hot-loader"
     );
 
-    console.info("don't really publish yet", { patchedPackageDir });
+    console.info("The patched code is ready, we don't really auto publish yet", { patchedPackageDir });
+    console.warn("Gonna fail the builds until you publish the new version");
+    process.exit(1);
 
     // const publishStdOut = await execFile(
     //   "yarn",
@@ -56,4 +58,7 @@ const {
   } else {
     console.info("Nothing to publish");
   }
-})();
+})().catch((e) => {
+  console.error(e);
+  process.exit(1);
+})
