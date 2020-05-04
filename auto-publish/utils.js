@@ -231,7 +231,6 @@ async function patchWork(originalDirOfPackage, targetDir, registryOrg) {
   // was doing nothing (?)
   // await copyAndPatchDirectory("../source", "../node_modules/react-dom/", "../target");
 
-  originalReactDOMPackageJSON.version = `${originalReactDOMPackageJSON.version}+${reactHotLoaderPackageJSON.version}`;
   basePackageJSON.name = basePackageJSON.name.replace(
     "REGISTRY_ORG_PLACEHOLDER",
     registryOrg
